@@ -37,7 +37,6 @@ public class ItemModTesla extends ItemArmorMod {
 	private static final double COIL_OFFSET = 1.25D;
 	private static final double RANGE = 5D;
 
-	/** Client-side arcs per wearer, filled in modUpdate, drawn in renderArcs. */
 	@SideOnly(Side.CLIENT)
 	private static Map<Entity, List<double[]>> arcs;
 
@@ -78,8 +77,7 @@ public class ItemModTesla extends ItemArmorMod {
 
 		boolean staticGen = hasStaticGenerator(ArmorModHandler.pryMod(armor, ArmorModHandler.battery));
 
-		// the client only needs the arc endpoints, so it scans for targets itself instead of running zap(), which deals damage
-		// and, for player targets, shifts the returned point a full body height down
+		// zap() deals damage and drops player targets below their feet, so the client scans on its own
 		if(entity.world.isRemote) {
 			setArcs(entity, staticGen ? scanArcTargets(entity) : null);
 			return;
@@ -92,7 +90,7 @@ public class ItemModTesla extends ItemArmorMod {
 		}
 	}
 
-	/** Same filters as TileEntityTesla.zap, but without any of its effects - visuals only. */
+	// same filters as TileEntityTesla.zap, no side effects
 	@SideOnly(Side.CLIENT)
 	private static List<double[]> scanArcTargets(EntityLivingBase source) {
 
@@ -121,7 +119,7 @@ public class ItemModTesla extends ItemArmorMod {
 	private static void setArcs(Entity entity, List<double[]> targets) {
 		if(arcs == null) arcs = new WeakHashMap<>();
 		if(targets == null || targets.isEmpty()) arcs.remove(entity);
-		else arcs.put(entity, new ArrayList<>(targets));
+		else arcs.put(entity, targets);
 	}
 
 	@SideOnly(Side.CLIENT)
